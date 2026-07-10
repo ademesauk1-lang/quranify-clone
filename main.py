@@ -1,29 +1,29 @@
 import streamlit as st
 
-# 1. ርዕስ እና ዲዛይን
+st.set_page_config(page_title="Quranify", layout="centered")
+
+# 1. የሱራዎች መረጃ (እዚህ ላይ እውነተኛውን የድምጽ ሊንክ ማድረግ ትችላለህ)
+surah_data = {
+    "ሱራ አል-ፋቲሃ": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+    "ሱራ አል-በቀራ": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
+    "ሱራ አን-ኒሳእ": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3"
+}
+
 st.title("📖 Quranify")
-st.markdown("---")
 
-# 2. የኦዲዮ ማጫወቻ (የሙከራ ሊንክ)
-st.subheader("አሁን እየተጫወተ ነው:")
-st.write("ሱራ አል-ፋቲሃ")
-st.audio("https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3") 
+# 2. የትኛው ሱራ እንደተመረጠ የሚያስታውስ ቦታ (Session State)
+if 'selected_surah' not in st.session_state:
+    st.session_state.selected_surah = "ሱራ አል-ፋቲሃ"
 
-# 3. አግድም ቁልፎች (Horizontal Controls)
-col1, col2, col3 = st.columns(3)
-with col1: 
-    st.button("⏪", use_container_width=True)
-with col2: 
-    st.button("▶️", use_container_width=True)
-with col3: 
-    st.button("⏩", use_container_width=True)
+# 3. የድምጽ ማጫወቻ
+st.subheader(f"አሁን እየተጫወተ ነው: {st.session_state.selected_surah}")
+st.audio(surah_data[st.session_state.selected_surah])
 
 st.markdown("---")
 
-# 4. የቃሪዎች ወይም የሱራዎች ዝርዝር (መጀመር ያለብን ክፍል)
+# 4. የሱራዎች ዝርዝር (ሲጫን አፕሊኬሽኑን ያዘምናል)
 st.subheader("የሱራዎች ዝርዝር")
-surahs = ["ሱራ አል-ፋቲሃ", "ሱራ አል-በቀራ", "ሱራ አል-ኢምራን", "ሱራ አን-ኒሳእ"]
-
-for surah in surahs:
-    if st.button(f"🎧 {surah}"):
-        st.write(f"የተመረጠው: {surah}")
+for surah_name in surah_data.keys():
+    if st.button(f"🎧 {surah_name}"):
+        st.session_state.selected_surah = surah_name
+        st.rerun() # አፕሊኬሽኑን አዲስ ምርጫ እንዲያሳይ እንደገና ያስጀምረዋል
