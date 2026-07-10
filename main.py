@@ -1,31 +1,16 @@
 import streamlit as st
 
-# የገጽ መግለጫ
-st.set_page_config(page_title="Quranify Clone", layout="centered")
+st.markdown("<h1 style='text-align: center;'>Quranify</h1>", unsafe_allow_html=True)
 
-# Custom CSS ለ dark theme
-st.markdown("""
-    <style>
-    .stApp { background-color: #121212; color: white; }
-    </style>
-""", unsafe_allow_html=True)
+# 1. ምስል
+st.image("https://images.unsplash.com/photo-1590595971752-167812258836?q=80&w=200", width=200)
 
-# ርዕስ
-st.title("📖 Quranify")
-st.subheader("በጣም የተወደዱ ቃሪዎች")
+# 2. የቁርአን ኦዲዮ (የሙከራ ሊንክ)
+st.write("ሱራ አል-ፋቲሃ")
+st.audio("https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3") 
 
-# የቃሪዎች ዝርዝር (ምሳሌ)
-reciters = ["Fatih Seferagig", "Abdulrahman Al-Suwayid", "Abdullah Al-Qarafi"]
-cols = st.columns(3)
-
-for i, name in enumerate(reciters):
-    with cols[i]:
-        st.image("https://via.placeholder.com/150", caption=name)
-        if st.button(f"አጫውት", key=name):
-            st.write(f"አሁን እየተጫወተ ነው: {name}")
-
-# የድምጽ ማቀናበሪያ (Background sound section)
-st.divider()
-st.subheader("የጀርባ ድምጽ (Background Sounds)")
-sound_option = st.selectbox("ድምጽ ይምረጡ:", ["ምንም", "ዝናብ", "ወንዝ", "ነፋስ"])
-st.info(f"የተመረጠው የጀርባ ድምጽ: {sound_option}")
+# 3. ቁልፎች
+col1, col2, col3 = st.columns(3)
+with col1: st.button("⏪")
+with col2: st.button("▶️")
+with col3: st.button("⏩")
