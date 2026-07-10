@@ -10,28 +10,18 @@ qari_data = {
 
 API_BASE = "https://api.alquran.cloud/v1"
 
-# 2. የዲዛይን (CSS) ማሻሻያ - የላክከውን የፎቶ ስታይል ለመምሰል
+# 2. የዲዛይን (CSS) - Dark Mode & Cards
 st.markdown("""
     <style>
-    /* የጀርባ ቀለም */
     .stApp { background-color: #121212; color: #ffffff; }
-    
-    /* የቁርአን ሳጥን ስታይል */
     .ayah-card {
         background-color: #1e1e1e;
-        padding: 20px;
-        border-radius: 12px;
-        margin-bottom: 15px;
-        border-left: 5px solid #4CAF50;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        padding: 15px;
+        border-radius: 10px;
+        margin-bottom: 10px;
+        border-left: 4px solid #4CAF50;
     }
-    
-    /* ጽሁፍ */
-    .ayah-text { font-size: 18px; line-height: 1.6; color: #e0e0e0; }
-    .ayah-num { font-weight: bold; color: #4CAF50; margin-right: 10px; }
-    
-    /* Sidebar */
-    [data-testid="stSidebar"] { background-color: #0d0d0d; }
+    .stSidebar { background-color: #0d0d0d; }
     </style>
 """, unsafe_allow_html=True)
 
@@ -44,7 +34,7 @@ selected_qari_name = st.sidebar.selectbox("Select Qari / ቃሪ ይምረጡ", l
 st.sidebar.image(qari_data[selected_qari_name]["photo"], width=150)
 show_tafsir = st.sidebar.checkbox("Show Tafsir / ተፍሲር አሳይ")
 
-# 4. ሱራ ዝርዝር
+# 4. ሱራ ዝርዝር መጫኛ
 @st.cache_data
 def get_surah_list():
     try: return requests.get(f"{API_BASE}/surah").json().get('data', [])
@@ -58,35 +48,37 @@ if st.button("Load Surah / ሱራውን አሳይ"):
     with st.spinner('Loading...'):
         lang_key = "en.asad" if lang_choice == "English" else "am.sadiq"
         
-        # API ጥሪ
-        text_resp = requests.get(f"{API_BASE}/surah/{selected_surah['number']}/{lang_key}").json().get('data', {})
-        audio_resp = requests.get(f"{API_BASE}/surah/{selected_surah['number']}/{qari_data[selected_qari_name]['id']}").json().get('data', {})
-        tafsir_resp = requests.get(f"{API_BASE}/surah/{selected_surah['number']}/en.muyassar").json().get('data', {})
-
-        if text_resp:
-            st.subheader(f"{text_resp.get('englishName')} - {text_resp.get('name')}")
+        # API ጥሪዎች (ደህንነቱ በተጠበቀ ሁኔታ)
+        try:
+            text_resp = requests.get(f"{API_BASE}/surah/{selected_surah['number']}/{lang_key}").json()
+            audio_resp = requests.get(f"{API_BASE}/surah/{selected_surah['number']}/{qari_data[selected_qari_name]['id']}").json()
+            tafsir_resp = requests.get(f"{API_BASE}/surah/{selected_surah['number']}/en.muyassar").json()
             
-            # ኦዲዮ ማጫወቻ
-            if audio_resp and 'ayahs' in audio_resp:
-                st.audio(audio_resp['ayahs'][0].get('audio'))
-
-            # አያቶችን በሳጥን ማሳያ
-            for i, ayah in enumerate(text_resp.get('ayahs', [])):
-                # የሳጥን ዲዛይን (Card)
-                st.markdown(f"""
-                    <div class='ayah-card'>
-                        <span class='ayah-num'>{ayah.get('numberInSurah')}.</span>
-                        <span class='ayah-text'>{ayah.get('text')}</span>
-                    </div>
-                """, unsafe_allow_html=True)
+            text_data = text_resp.get('data', {})
+            audio_data = audio_resp.get('data', {})
+            tafsir_data = tafsir_resp.get('data', {})
+            
+            if text_data:
+                st.subheader(f"{text_data.get('englishName')} - {text_data.get('name')}")
                 
-                # ተፍሲር
-                if show_tafsir:
-                    with st.expander("📖 Tafsir"):
-                        tafsir_text = tafsir_resp['ayahs'][i].get('text') if tafsir_resp else "Not available."
-                        st.write(tafsir_text)
-        else:
-            st.error("መረጃ ማምጣት አልተቻለም።")
+                # ኦዲዮ መጫወቻ (የተጠበቀ)
+                audio_list = audio_data.get('ayahs', [])
+                if audio_list and len(audio_list) > 0 and audio_list[0].get('audio'):
+                    st.audio(audio_list[0]['audio'])
+                else:
+                    st.warning("ለዚህ ሱራ ኦዲዮ አልተገኘም።")
 
-# 6. Footer
-st.markdown("<br><hr><center>Quranify Pro © 2026</center>", unsafe_allow_html=True)
+                # አያቶችን በሳጥን ማሳያ
+                for i, ayah in enumerate(text_data.get('ayahs', [])):
+                    st.markdown(f"<div class='ayah-card'><strong>{ayah.get('numberInSurah')}.</strong> {ayah.get('text')}</div>", unsafe_allow_html=True)
+                    
+                    # ተፍሲር (የተጠበቀ)
+                    if show_tafsir:
+                        tafsir_ayahs = tafsir_data.get('ayahs', [])
+                        if i < len(tafsir_ayahs):
+                            with st.expander("📖 Tafsir"):
+                                st.write(tafsir_ayahs[i].get('text', 'Tafsir not available.'))
+            else:
+                st.error("መረጃ ማምጣት አልተቻለም።")
+        except Exception as e:
+            st.error(f"ስህተት ተፈጥሯል: {e}")
