@@ -1,16 +1,29 @@
 import streamlit as st
 
-st.markdown("<h1 style='text-align: center;'>Quranify</h1>", unsafe_allow_html=True)
+# 1. ርዕስ እና ዲዛይን
+st.title("📖 Quranify")
+st.markdown("---")
 
-# 1. ምስል
-st.image("https://images.unsplash.com/photo-1590595971752-167812258836?q=80&w=200", width=200)
-
-# 2. የቁርአን ኦዲዮ (የሙከራ ሊንክ)
+# 2. የኦዲዮ ማጫወቻ (የሙከራ ሊንክ)
+st.subheader("አሁን እየተጫወተ ነው:")
 st.write("ሱራ አል-ፋቲሃ")
 st.audio("https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3") 
 
-# 3. ቁልፎች
+# 3. አግድም ቁልፎች (Horizontal Controls)
 col1, col2, col3 = st.columns(3)
-with col1: st.button("⏪")
-with col2: st.button("▶️")
-with col3: st.button("⏩")
+with col1: 
+    st.button("⏪", use_container_width=True)
+with col2: 
+    st.button("▶️", use_container_width=True)
+with col3: 
+    st.button("⏩", use_container_width=True)
+
+st.markdown("---")
+
+# 4. የቃሪዎች ወይም የሱራዎች ዝርዝር (መጀመር ያለብን ክፍል)
+st.subheader("የሱራዎች ዝርዝር")
+surahs = ["ሱራ አል-ፋቲሃ", "ሱራ አል-በቀራ", "ሱራ አል-ኢምራን", "ሱራ አን-ኒሳእ"]
+
+for surah in surahs:
+    if st.button(f"🎧 {surah}"):
+        st.write(f"የተመረጠው: {surah}")
